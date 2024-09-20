@@ -19,11 +19,10 @@ const routes = [
   },
 ];
 
-const Images = [
-  <img src="/img/post.png" />
-];
-
-console.log(Images);
+const notFound = {
+  name: 'Page not found',
+  element: <NotFound />,
+}
 
 function getRoute(routeUrl) {
   const route = routes.find(x => x.url === routeUrl);
@@ -45,7 +44,6 @@ function App() {
       return getRoute(location.hash);
     }
   );
-
   const [postId, setPostId] = useState(null);
 
   useEffect(() => {
@@ -105,7 +103,6 @@ function Nav() {
 
 function Home() {
   const route = useContext(RouterContext);
-  // const mainClass = route.url === '#/' ? 'homeMain' : 'main';
 
   return (
     <div className="home">
@@ -192,6 +189,7 @@ function SomePostsHome() {
 
 function Posts() {
   const [data, setData] = useState([]);
+  const { setPostId } = useContext(PostContext);
 
   useEffect(() => {
     async function getData(){
@@ -212,7 +210,7 @@ function Posts() {
           <strong>{new Date(x.updatedAt).toLocaleString("tr")}</strong>
           <div className="route" style={{display: 'flex'}}>
             <h2>{x.title}</h2> 
-            <a href='#'> <img src="/img/routingIcon.svg" alt="" /></a>
+            <a href='#'  onClick={e => { e.preventDefault(); setPostId(x.id)}}> <img src="/img/routingIcon.svg" alt="" /></a>
           </div>
           <p>{x.content}</p>
         </div>
@@ -225,12 +223,50 @@ function Posts() {
 
 function Main() {
   const route = useContext(RouterContext);
+  const [postDetail, setPostDetail] = useState(null); 
+  const { postId, setPostId } = useContext(PostContext);
+
+  useEffect(() => {
+    async function getData(){
+      if (postId) {
+          const response = await fetch(`http://localhost:3000/api/posts/${postId}`);
+          const postdata = await response.json();
+          setPostDetail(postdata); 
+      }
+    }
+    getData();
+  }, [postId]);
+
+  function handleClick(e) {
+    e.preventDefault();
+    setPostId(null);  
+  }
 
   return (
     <div className='main'>
-      {route.element}
+      {postId && route.url === '#/posts' ? (
+        <>
+          <a href="#" onClick={handleClick}> <img style={{width: '26px'}} src="/img/back.svg" alt="back icon" /> </a>
+          {postDetail ? ( 
+            <>
+              <h2>{postDetail.title}</h2>
+              <p>{postDetail.content}</p>
+            </>
+          ) : (
+            <p>Loading...</p> 
+          )}
+        </>
+      ) : (
+        route.element 
+      )}
     </div>
   );
+}
+
+function NotFound() {
+  return (
+    <p>Page not found. <a href="#/">return home</a></p>
+  )
 }
 
 export default App
