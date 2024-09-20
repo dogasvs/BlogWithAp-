@@ -45,6 +45,7 @@ function App() {
     }
   );
   const [postId, setPostId] = useState(null);
+  const [sidenavOpen, setSidenavOpen] = useState(false);
 
   useEffect(() => {
     setTitle(route.name);
@@ -56,13 +57,13 @@ function App() {
     });
   }, []);
 
-
   return (
     <RouterContext.Provider value={route}>
       <div className='container'>
         <Header />
         <PostContext.Provider value={{ postId, setPostId }}>
-          <Main />
+          <Main setSidenavOpen={setSidenavOpen} />
+          <Sidenav isOpen={sidenavOpen} closeSidenav={() => setSidenavOpen(false)} />
         </PostContext.Provider>
       </div>
     </RouterContext.Provider>
@@ -177,7 +178,6 @@ function SomePostsHome() {
           <strong>{new Date(x.updatedAt).toLocaleString("tr")}</strong>
           <div className="route">
           <h2>{x.title}</h2> 
-           <a href='#'> <img src="/img/routingIcon.svg" alt="" /></a>
           </div>
           <p>{x.content}</p>
         </div>
@@ -220,8 +220,18 @@ function Posts() {
   )
 }
 
+function Sidenav({ isOpen, closeSidenav }) {
+  return (
+    <div className={`sidenav ${isOpen ? 'open' : ''}`}>
+      <button onClick={closeSidenav} className="closeBtn">X</button>
+      <div className="sidenavContent">
+        <h2>Comments</h2>
+      </div>
+    </div>
+  )
+}
 
-function Main() {
+function Main({ setSidenavOpen }) {
   const route = useContext(RouterContext);
   const [postDetail, setPostDetail] = useState(null); 
   const { postId, setPostId } = useContext(PostContext);
@@ -248,10 +258,25 @@ function Main() {
         <>
           <a href="#" onClick={handleClick}> <img style={{width: '26px'}} src="/img/back.svg" alt="back icon" /> </a>
           {postDetail ? ( 
-            <>
+            <div className='postDetail'>
+             <img src={`img/post${postId}.png`} alt={`post ${postId}`} />
               <h2>{postDetail.title}</h2>
               <p>{postDetail.content}</p>
-            </>
+              <div className="interaction">
+            <div className="InteractionsItem">
+              <a href='#' onClick={(e) => e.preventDefault()}> <img src="/img/likeDetails.svg" alt="" />Like</a>
+            </div>
+            <div className="InteractionsItem">
+              <a href='#'   onClick={e => { e.preventDefault(); setPostId(postDetail.id); setSidenavOpen(true);}}> <img src="/img/comment.svg" alt="" />Comment</a>
+            </div>
+            <div className="InteractionsItem">
+              <a href='#' onClick={(e) => e.preventDefault()}> <img src="/img/return.svg" alt="" />Repost</a>
+            </div>
+            <div className="InteractionsItem">
+              <a href='#' onClick={(e) => e.preventDefault()}> <img src="/img/share.svg" alt="" />Share</a>
+            </div>
+          </div>
+            </div>
           ) : (
             <p>Loading...</p> 
           )}
