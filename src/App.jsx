@@ -117,42 +117,33 @@ function Home() {
 }
 
 function RecentBlog() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function getData(){
+        const response = await fetch("http://localhost:3000/api/posts"); 
+        const postdata = await response.json();
+        setData([...data, ...postdata]);
+    }
+    getData();
+  }, []);
+
   return (
     <div className="recentBlog">
-        <h3>Recent blog posts</h3>
-        <div className="blogGrid">
-          <div className="blogItem">
-            <img src="img/Image.png" alt="" />
-            <strong>Olivia Rhye • 1 Jan 2023</strong>
-            <h2>UX review presentations</h2>
-            <p>How do you create compelling presentations that wow your colleagues and impress your managers?</p>
-          </div>
-          <div className="blogItem">
-            <img src="img/Image1.png" alt="" />
+      <h3>Recent blog posts</h3>
+      <div className="blogGrid">
+        {data.slice(0, 4).map((x, i) => (
+          <div className="blogItem" key={i}>
+            <img src={`img/Image${i}.png`} alt={`Blog Post ${i}`} />
             <div className="blogItemInfo">
-              <strong>Olivia Rhye • 1 Jan 2023</strong>
-              <h2>UX review presentations</h2>
-              <p>How do you create compelling presentations that wow your colleagues and impress your managers?</p>
+              <strong>{x.author} • {new Date(x.updatedAt).toLocaleDateString("tr")}</strong>
+              <h2>{x.title}</h2>
+              <p>{x.content}</p>
             </div>
           </div>
-          <div className="blogItem">
-            <img src="img/Image2.png" alt="" />
-            <div className="blogItemInfo">
-              <strong>Olivia Rhye • 1 Jan 2023</strong>
-              <h2>UX review presentations</h2>
-              <p>How do you create compelling presentations that wow your colleagues and impress your managers?</p>
-            </div>
-          </div>
-          <div className="blogItem">
-            <img src="img/Image3.png" alt="" />
-            <div className="blogItemInfo">
-              <strong>Olivia Rhye • 1 Jan 2023</strong>
-              <h2>UX review presentations</h2>
-              <p>A grid system is a design tool used to arrange content on a webpage. It is a series of vertical and horizontal lines that create a matrix of intersecting points, which can be used to align and organize page elements. Grid systems are used to create a consistent look and feel across a website, and can help to make the layout more visually appealing and easier to navigate.</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
+    </div>
   )
 }
 
@@ -185,9 +176,12 @@ function SomePostsHome() {
       <div className='postItem'>
         {data.slice(0, 6).map((x, i) => (
         <div className='post' key={i}>
-          <img src="/img/post.png" alt="" />
+            <img src={`img/post${i}.png`} alt={`post ${i}`} />
           <strong>{new Date(x.updatedAt).toLocaleString("tr")}</strong>
-          <h2>{x.title}</h2>
+          <div className="route">
+          <h2>{x.title}</h2> 
+           <a href='#'> <img src="/img/routingIcon.svg" alt="" /></a>
+          </div>
           <p>{x.content}</p>
         </div>
         ))}
@@ -197,9 +191,34 @@ function SomePostsHome() {
 }
 
 function Posts() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function getData(){
+        const response = await fetch("http://localhost:3000/api/posts"); 
+        const postdata = await response.json();
+        setData([...data, ...postdata]);
+    }
+    getData();
+  }, []);
+
   return (
-    <>
-    </>
+    <div className='someposts'>
+        <h3>All Blog Posts</h3>
+      <div className='postItem'>
+        {data.map((x, i) => (
+        <div className='post' key={i}>
+          <img src={`img/post${i}.png`} alt={`post ${i}`} />
+          <strong>{new Date(x.updatedAt).toLocaleString("tr")}</strong>
+          <div className="route" style={{display: 'flex'}}>
+            <h2>{x.title}</h2> 
+            <a href='#'> <img src="/img/routingIcon.svg" alt="" /></a>
+          </div>
+          <p>{x.content}</p>
+        </div>
+        ))}
+    </div>
+    </div>
   )
 }
 
